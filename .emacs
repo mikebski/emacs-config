@@ -111,7 +111,7 @@
 
 (put 'erase-buffer 'disabled nil)
 (eval-after-load 'shell
-  '(define-key shell-mode-map [(\C-z)] 'clear-shell-buffer))
+  '(define-key shell-mode-map [(?\C-z)] 'clear-shell-buffer))
 
 ;;;;; End my custom functions
 (load-files (directory-files "site-lisp" 1 ".*el$"))
