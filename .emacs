@@ -1,6 +1,7 @@
 (cd "~/")
 (menu-bar-mode -1)
 (tool-bar-mode -1)
+(setq mac-command-modifier 'control)
 
 (defun iwb ()
   "indent whole buffer"
