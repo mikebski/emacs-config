@@ -3,6 +3,67 @@
 (tool-bar-mode -1)
 (setq mac-command-modifier 'control)
 
+;; Home and End functions which let you jump back to the stack
+(setq mwb-point-stack ()) ;; Initial global stack is empty
+(make-variable-buffer-local 'mwb-point-stack) ;; Set so each buffer gets its own stack
+
+;;
+;; Goto last point on the buffer-local stack
+;;
+(defun goto-point-on-stack ()
+  "Go to the first point on the stack"
+  (interactive)
+  (if (> (length mwb-point-stack) 0)
+      (progn
+        (goto-char (car mwb-point-stack))
+        (setq mwb-point-stack (cdr mwb-point-stack))
+        (recenter-top-bottom)
+        )
+    (message "No saved points found")
+    )
+  )
+
+;;
+;; Save current cursor location to the buffer-local stack
+;;
+(defun goto-save-point-on-stack ()
+  "Save the current point to the stack so that goto-point-on-stack can use it."
+  (interactive)
+  (setq mwb-point-stack (cons (point) (bound-and-true-p mwb-point-stack)))
+  (message "Point saved")
+  )
+
+;;
+;; GOTO END
+;;
+(defun goto-end ()
+  "Go to the end of the buffer and push the current location on to the stack, if the current location is not the beginning or end of the buffer"
+  (interactive)
+  (if (or (eq (point) (point-max)) (eq (point) (point-min))) (message "Not saving position")
+    (goto-save-point-on-stack)
+    )
+  (goto-char (point-max))
+  )
+
+;;
+;; GOTO BEGINNING
+;;
+(defun goto-beginning ()
+  "Got to the beginning of the buffer and push the current location on to the stack, if the current location is not the beginning or end of the buffer"
+  (interactive)
+  (if (or (eq (point) (point-max)) (eq (point) (point-min))) (message "Not saving position")
+    (goto-save-point-on-stack)
+    )
+  (goto-char (point-min))
+  )
+
+;; Map error keys:
+(global-set-key (kbd "\C-x <down>") 'goto-end)
+(global-set-key (kbd "\C-x <up>") 'goto-beginning)
+(global-set-key (kbd "\C-x <left>") 'goto-point-on-stack)
+(global-set-key (kbd "\C-x <right>") 'goto-save-point-on-stack)
+;; End home and end functions
+
 (defun iwb ()
   "indent whole buffer"
   (interactive)
@@ -10,50 +71,12 @@
   (indent-region (point-min) (point-max) nil)
   (untabify (point-min) (point-max)))
 
-(require 'paren)
-(show-paren-mode 1)
-(global-set-key "%" 'match-paren)
-
 (defun match-paren (arg)
   "Go to the matching paren if on a paren; otherwise insert %."
   (interactive "p")
   (cond ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
         ((looking-at "\\s\)") (forward-char 1) (backward-list 1))
         (t (self-insert-command (or arg 1)))))
-
-(global-set-key "\C-cc" 'iwb)
-(global-set-key "\C-s" 'isearch-forward-regexp)
-(global-set-key "\C-r" 'isearch-backward-regexp)
-(global-set-key "\C-f" 'forward-word)
-(global-set-key "\C-b" 'backward-word)
-(global-set-key "\C-xe" 'end-of-buffer)
-(global-set-key "\C-xa" 'beginning-of-buffer)
-(global-set-key "\C-xm" 'call-last-kbd-macro)
-(global-set-key (kbd "RET") 'newline-and-indent)
-(global-set-key "\C-z" 'shell)
-
-(global-set-key "\C-ck" 'copy-line)
-(global-set-key "\M-k" 'kill-other-buffer)
-(global-set-key [delete] 'delete-char)
-(global-set-key [kp-delete] 'delete-char)
-(define-key text-mode-map (kbd "RET") 'newline)
-
-(global-unset-key "\C-u")
-(define-prefix-command `C-u-prefix)
-(global-set-key "\C-uk" 'copy-line)
-(global-set-key "\C-ug" 'igrep-visited-files)
-
-;; Set esc-o to switch buffer.
-(global-set-key [(meta o)]
-                (lambda ()
-                  (interactive)
-                  (switch-to-buffer (other-buffer))))
-
-;; Set the font for strings
-(custom-set-variables
- '(font-lock-maximum-size 524288))
-(custom-set-faces
- '(font-lock-string-face ((((class color) (background light)) (:foreground "Black")))))
 
 ;; These are written by Mike Baranski.
 (defun kill-other-buffer ()
@@ -107,6 +130,18 @@
     (load-files (cdr file-list))
     ))
 
+(require 'paren)
+(show-paren-mode 1)
+(global-set-key "%" 'match-paren)
+
+(global-set-key "\C-cc" 'iwb)
+(global-set-key (kbd "\C-z") 'shell)
+
+(global-set-key [(meta o)]
+                (lambda ()
+                  (interactive)
+                  (switch-to-buffer (other-buffer))))
+
 ; try to improve slow performance on windows.
 (setq w32-get-true-file-attributes nil)
 
@@ -124,3 +159,20 @@
   (package-initialize)
   (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
   )
+
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa-stable" . "https://stable.melpa.org/packages/"))
+(package-initialize)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages (quote (yaml-mode anaconda-mode))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
