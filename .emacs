@@ -7,6 +7,13 @@
 (setq mwb-point-stack ()) ;; Initial global stack is empty
 (make-variable-buffer-local 'mwb-point-stack) ;; Set so each buffer gets its own stack
 
+(defun copy-whole-buffer ()
+  "Copy all the text in the buffer to the clipboard"
+  (interactive)
+  (kill-ring-save (point-min) (point-max))
+  (message "Buffer copied to clipboard")
+  )
+
 ;;
 ;; Goto last point on the buffer-local stack
 ;;
@@ -136,13 +143,13 @@
 
 (global-set-key "\C-cc" 'iwb)
 (global-set-key (kbd "\C-z") 'shell)
-
+(global-set-key "\C-cw" 'copy-whole-buffer)
 (global-set-key [(meta o)]
                 (lambda ()
                   (interactive)
                   (switch-to-buffer (other-buffer))))
 
-; try to improve slow performance on windows.
+                                        ; try to improve slow performance on windows. ;
 (setq w32-get-true-file-attributes nil)
 
 (put 'erase-buffer 'disabled nil)
