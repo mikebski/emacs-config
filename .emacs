@@ -1,3 +1,12 @@
+;; ____________________________________________________________________________
+;; Aquamacs custom-file warning:
+;; Warning: After loading this .emacs file, Aquamacs will also load
+;; customizations from `custom-file' (customizations.el). Any settings there
+;; will override those made here.
+;; Consider moving your startup settings to the Preferences.el file, which
+;; is loaded after `custom-file':
+;; ~/Library/Preferences/Aquamacs Emacs/Preferences
+;; _____________________________________________________________________________
 (cd "~/")
 (menu-bar-mode -1)
 (tool-bar-mode -1)
@@ -144,6 +153,9 @@
 (global-set-key "\C-cc" 'iwb)
 (global-set-key (kbd "\C-z") 'shell)
 (global-set-key "\C-cw" 'copy-whole-buffer)
+(when (featurep 'aquamacs)
+  (global-set-key "\C-\M-y" 'clipboard-yank)
+  )
 (global-set-key [(meta o)]
                 (lambda ()
                   (interactive)
